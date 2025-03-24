@@ -68,6 +68,15 @@ def livros():
     
     return jsonify(livros_json)
 
+# Rota para deletar um livro
+@app.route('/livros/<int:id>', methods=['DELETE'])
+def deletar_livro(id):
+  with sqlite3.connect('database.db') as conn:
+    conn.execute("""DELETE FROM livros WHERE id = ?""", (id,))
+    conn.commit()
+    
+    return jsonify({"mensagem": "Livro deletado com sucesso!"})
+
 # Tratamento de Erro
 if __name__ == '__main__':
   app.run(debug=True)
