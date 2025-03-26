@@ -1,6 +1,6 @@
-from flask import Flask, request, jsonify # Importando o Flask, request e jsonify
-import sqlite3 # Importando o sqlite3
-from flask_cors import CORS # Importando o CORS
+from flask import Flask, request, jsonify, render_template # Importa o Flask, request, jsonify e render_template
+import sqlite3 # Importa o sqlite3
+from flask_cors import CORS # Importa o CORS
 
 app = Flask(__name__) # Inicializando o Flask
 CORS(app) # Inicializando o CORS
@@ -22,8 +22,8 @@ init_db()
 
 # Rota para a página inicial
 @app.route('/')
-def home_page():
-  return '<h2>Livros Vai na Web</h2>'
+def homepage():
+  return render_template('index.html')
 
 # Rota para cadastrar um novo livro
 @app.route('/doar', methods=['POST'])
@@ -77,9 +77,33 @@ def deletar_livro(id):
     conn.execute("""DELETE FROM livros WHERE id = ?""", (id,))
     conn.commit()
     
-    return jsonify({"mensagem": "Livro deletado com sucesso!"})
+     # Verifica se algum registro foi afetado (se o livro foi encontrado e excluído).
+    if sqlite3.Cursor.rowcount == 0:
+        # Retorna um erro 400 (Bad Request) se o livro não foi encontrado.
+        return jsonify({"erro": "Livro não encontrado"}), 400
 
-# Tratamento de Erro
+    # Retorna uma mensagem de sucesso com o código 200 (OK).
+    return jsonify({"menssagem": "Livro excluído com sucesso"}), 200
+
+# Rota para atualizar um livro
+@app.route('/livros/<int:id>', methods=['PUT'])
+def atualizar_livro(id):
+  dados = request.get_json()
+  
+  titulo = dados.get('titulo')
+  categoria = dados.get('categoria')
+  autor = dados.get('autor')
+  imagem_url = dados.get('imagem_url')
+  
+  if not all([titulo, categoria, autor, imagem_url]):
+    return jsonify({'erro': 'Todos os campos são obrigatórios!'}), 400
+  
+  with sqlite3.connect('database.db') as conn:
+    conn.execute("""UPDATE livros SET titulo = ?, categoria = ?, autor = ?, imagem_url = ? WHERE id = ?""", (titulo, categoria, autor, imagem_url, id))
+    conn.commit()
+    
+    return jsonify({"mensagem": "Livro atualizado com sucesso!"}), 200
+
+# Ponto de entrada da aplicação: inicia o servidor em modo de depuração (debug)
 if __name__ == '__main__':
   app.run(debug=True)
-
