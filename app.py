@@ -1,7 +1,9 @@
 from flask import Flask, request, jsonify # Importando o Flask, request e jsonify
 import sqlite3 # Importando o sqlite3
+from flask_cors import CORS # Importando o CORS
 
 app = Flask(__name__) # Inicializando o Flask
+CORS(app) # Inicializando o CORS
 
 # Função para criar o banco de dados
 def init_db():
