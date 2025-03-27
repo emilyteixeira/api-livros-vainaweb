@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template # Importa o Flask, request, jsonify e render_template
 import sqlite3 # Importa o sqlite3
-from flask_cors import CORS # Importa o CORS
+from flask_cors import CORS # Importa o CORS para permitir requisições de diferentes origens
 
 app = Flask(__name__) # Inicializando o Flask
 CORS(app) # Inicializando o CORS
